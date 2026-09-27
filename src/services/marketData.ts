@@ -60,8 +60,8 @@ export async function fetchQuote(symbol: string): Promise<StockQuote | null> {
     if (!result?.meta) throw new Error('No data');
 
     const meta = result.meta;
-    const ltp = meta.regularMarketPrice ?? 0;
-    const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? ltp;
+    const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? 0;
+    const ltp = meta.regularMarketPrice ?? prevClose;
     const change = ltp - prevClose;
     const changePercent = prevClose !== 0 ? (change / prevClose) * 100 : 0;
 

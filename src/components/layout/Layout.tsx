@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import TopBar from './TopBar';
 import Sidebar from './Sidebar';
+import { startOrderEngine, stopOrderEngine } from '../../services/orderExecutionService';
 
 const Layout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Start the background order execution engine
+  useEffect(() => {
+    startOrderEngine();
+    return () => stopOrderEngine();
+  }, []);
 
   return (
     <div className="flex h-screen flex-col bg-surface-0 text-white overflow-hidden">

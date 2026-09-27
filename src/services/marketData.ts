@@ -4,9 +4,10 @@
  * Caches aggressively and falls back to last-known prices.
  */
 
-import type { StockQuote, Candle, IndexQuote, MarketStatus } from '../types';
-import { CORS_PROXY, YAHOO_CHART_BASE, INDICES, QUOTE_CACHE_TTL, HISTORY_CACHE_TTL } from '../utils/constants';
+import type { StockQuote, Candle, IndexQuote, MarketStatus, StockSearchResult } from '../types';
+import { CORS_PROXY, YAHOO_CHART_BASE, INDICES, QUOTE_CACHE_TTL, HISTORY_CACHE_TTL, POPULAR_STOCKS } from '../utils/constants';
 import { getCached, setCache } from './storage';
+import { displaySymbol } from '../utils/formatters';
 
 // --- Yahoo Finance API Types ---
 interface YahooChartResult {
@@ -253,14 +254,16 @@ export function getMarketStatus(): MarketStatus {
 }
 
 /**
- * Search stocks by query
+ * Search stocks by query — fuzzy match against symbol and company name
  */
-export function searchStocks(query: string): import('../types').StockSearchResult[] {
-  // Import inline to avoid circular dependency
+export function searchStocks(query: string): StockSearchResult[] {
   const q = query.toLowerCase().trim();
-  if (!q) return [];
+  if (!q || q.length < 1) return [];
 
-  // We import POPULAR_STOCKS dynamically but since this is a utility,
-  // we keep a local reference
-  return [];
+  return POPULAR_STOCKS.filter(
+    (s) =>
+      s.symbol.toLowerCase().includes(q) ||
+      s.companyName.toLowerCase().includes(q) ||
+      displaySymbol(s.symbol).toLowerCase().includes(q)
+  ).slice(0, 10);
 }
